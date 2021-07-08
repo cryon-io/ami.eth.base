@@ -22,9 +22,9 @@ local _defaultIpcPath = path.combine(am.app.get_model("DATA_DIR", "data"), ".eth
 
 local function _exec_geth(method)
     local _ipcPath = "ipc://." .. am.app.get_model("IPC_PATH", _defaultIpcPath)
-    local arg = {"--exec", method, "attach", _ipcPath}
+    local _arg = {"--exec", method, "attach", _ipcPath}
 
-    local _proc = proc.spawn("bin/geth", arg, {stdio = {stdout = "pipe", stderr = "pipe"}, wait = true})
+    local _proc = proc.spawn("bin/geth", _arg, {stdio = {stdout = "pipe", stderr = "pipe"}, wait = true})
 
     local _exitcode = _proc.exitcode
     local _stdout = _proc.stdoutStream:read("a") or ""
