@@ -4,12 +4,13 @@ local _ok, _systemctl = am.plugin.safe_get("systemctl")
 ami_assert(_ok, "Failed to load systemctl plugin", EXIT_PLUGIN_LOAD_ERROR)
 
 local _appId = am.app.get("id", "unknown")
-local _ok, _status = _systemctl.safe_get_service_status(_appId .. "-" .. am.app.get_model("SERVICE_NAME"))
+local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. am.app.get_model("SERVICE_NAME"))
 ami_assert(_ok, "Failed to start " .. _appId .. "-" .. am.app.get_model("SERVICE_NAME") .. " " .. (_status or ""), EXIT_PLUGIN_EXEC_ERROR)
 
 local _info = {
     geth = _status,
     level = "ok",
+	started = _started,
     status = "Node is not running!",
     currentBlock = "unknown",
     currentBlockHash = "unknown",
@@ -72,7 +73,7 @@ if _info.geth ~= "running" then
 end
 
 if _json then
-    print(hjson.stringify_to_json(_info, {indent = false}))
+    print(hjson.stringify_to_json(_info, {indent = false, sortKeys = true}))
 else
     print(hjson.stringify(_info))
 end
