@@ -18,11 +18,11 @@ local _info = {
 }
 
 for service, _ in pairs(am.app.get_model("SERVICES")) do
-	local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. am.app.get_model("SERVICE_NAME"))
+	local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. service)
     if _ok then
         _info[service] = _status    
     else 
-        _info[service] = "Failed to get service status " .. _appId .. "-" .. am.app.get_model("SERVICE_NAME") .. " " .. (_status or "")
+        _info[service] = "Failed to get service status " .. _appId .. "-" .. service .. " " .. (_status or "")
     end
 end
 
