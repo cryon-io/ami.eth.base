@@ -12,6 +12,7 @@ local _info = {
     currentBlock = "unknown",
     currentBlockHash = "unknown",
     synced = false,
+    versions = am.app.get_model("VERSIONS"),
     version = am.app.get_version(),
     type = am.app.get_type()
 }
