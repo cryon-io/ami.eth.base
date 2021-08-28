@@ -12,9 +12,11 @@ am.app.set_model(
             true
         ),
         DAEMON_NAME = "geth",
-        SERVICE_NAME = "eth-geth",
         DATA_DIR = path.combine(os.cwd(), "data"),
-		STARTUP_ARGS = am.app.get_configuration("STARTUP_ARGS", {})
+		STARTUP_ARGS = am.app.get_configuration("STARTUP_ARGS", {}),
+        SERVICES = {
+            ["eth-geth"] = "__eth/assets/daemon.service"
+        }
     },
     { merge = true, overwrite = true }
 )

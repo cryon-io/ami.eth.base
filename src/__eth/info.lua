@@ -4,11 +4,8 @@ local _ok, _systemctl = am.plugin.safe_get("systemctl")
 ami_assert(_ok, "Failed to load systemctl plugin", EXIT_PLUGIN_LOAD_ERROR)
 
 local _appId = am.app.get("id", "unknown")
-local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. am.app.get_model("SERVICE_NAME"))
-ami_assert(_ok, "Failed to start " .. _appId .. "-" .. am.app.get_model("SERVICE_NAME") .. " " .. (_status or ""), EXIT_PLUGIN_EXEC_ERROR)
 
 local _info = {
-    geth = _status,
     level = "ok",
 	started = _started,
     status = "Node is not running!",
@@ -18,6 +15,15 @@ local _info = {
     version = am.app.get_version(),
     type = am.app.get_type()
 }
+
+for service, _ in pairs(am.app.get_model("SERVICES")) do
+	local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. am.app.get_model("SERVICE_NAME"))
+    if _ok then
+        _info[service] = _status    
+    else 
+        _info[service] = "Failed to get service status " .. _appId .. "-" .. am.app.get_model("SERVICE_NAME") .. " " .. (_status or "")
+    end
+end
 
 local _defaultIpcPath = path.combine(am.app.get_model("DATA_DIR", "data"), ".ethereum/geth.ipc")
 

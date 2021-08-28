@@ -25,7 +25,10 @@ log_info("Configuring " .. am.app.get("id") .. " services...")
 
 local _ok, _systemctl = am.plugin.safe_get("systemctl")
 ami_assert(_ok, "Failed to load systemctl plugin - " .. tostring(_systemctl))
-local _ok, _error = _systemctl.safe_install_service(am.app.get_model("SERVICE_FILE", "__eth/assets/daemon.service"), am.app.get("id") .. "-" .. am.app.get_model("SERVICE_NAME", ""))
-ami_assert(_ok, "Failed to install " .. am.app.get("id") .. "-" .. am.app.get_model("SERVICE_NAME", "") .. ".service " .. (_error or ""))
+
+for service, file in pairs(am.app.get_model("SERVICES")) do
+    local _ok, _error = _systemctl.safe_install_service(file, am.app.get("id") .. "-" .. service)
+    ami_assert(_ok, "Failed to install " .. am.app.get("id") .. "-" .. service .. ".service " .. (_error or ""))
+end
 
 log_success(am.app.get("id") .. " services configured")
