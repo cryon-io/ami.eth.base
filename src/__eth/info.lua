@@ -17,13 +17,17 @@ local _info = {
     type = am.app.get_type()
 }
 
+local _allRunning = true
 for service, _ in pairs(am.app.get_model("SERVICES")) do
 	local _ok, _status, _started = _systemctl.safe_get_service_status(_appId .. "-" .. service)
     if _ok then
-        _info[service] = _status    
-    else 
+        _info[service] = _status
+        _allRunning = _allRunning and _status == "running"
+    else
+        _allRunning = false
         _info[service] = "Failed to get service status " .. _appId .. "-" .. service .. " " .. (_status or "")
     end
+
 end
 
 local _defaultIpcPath = path.combine(am.app.get_model("DATA_DIR", "data"), ".ethereum/geth.ipc")
@@ -54,28 +58,26 @@ local function _exec_geth(method)
     return false, {message = "unknown (internal error)"}
 end
 
-if _info.geth == "running" then
-    local _ok, _ethSyncing = _exec_geth("eth.syncing")
-    if _ok and type(_ethSyncing) == "table" then
-        _info.synced = _ethSyncing.currentBlock == _ethSyncing.highestBlock
-        _info.currentBlock = _ethSyncing.currentBlock
-        _info.status = _info.synced and "Synchronized" or "Syncing..."
-        _info.level = _info.synced and "ok" or "warn"
-    end
-    if _ethSyncing == false then
-        local _ok, _blockNumber = _exec_geth("eth.blockNumber")
-        if _ok then
-            _info.status = "Synchronized"
-            _info.currentBlock = _blockNumber
-            _info.synced = true
-            _info.level = "ok"
-        end
-    end
-    local _ok, _blockHash = _exec_geth("eth.getBlock(" .. _info.currentBlock .. ").hash")
-    _info.currentBlockHash = _ok and _blockHash or "unknown"
+local _ok, _ethSyncing = _exec_geth("eth.syncing")
+if _ok and type(_ethSyncing) == "table" then
+    _info.synced = _ethSyncing.currentBlock == _ethSyncing.highestBlock
+    _info.currentBlock = _ethSyncing.currentBlock
+    _info.status = _info.synced and "Synchronized" or "Syncing..."
+    _info.level = _info.synced and "ok" or "warn"
 end
+if _ethSyncing == false then
+    local _ok, _blockNumber = _exec_geth("eth.blockNumber")
+    if _ok then
+        _info.status = "Synchronized"
+        _info.currentBlock = _blockNumber
+        _info.synced = true
+        _info.level = "ok"
+    end
+end
+local _ok, _blockHash = _exec_geth("eth.getBlock(" .. _info.currentBlock .. ").hash")
+_info.currentBlockHash = _ok and _blockHash or "unknown"
 
-if _info.geth ~= "running" then
+if not _allRunning then
     _info.level = "error"
 end
 
