@@ -7,7 +7,6 @@ local _appId = am.app.get("id", "unknown")
 
 local _info = {
     level = "ok",
-	started = _started,
     status = "Node is not running!",
     currentBlock = "unknown",
     currentBlockHash = "unknown",
